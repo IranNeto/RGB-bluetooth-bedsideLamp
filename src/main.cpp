@@ -31,6 +31,8 @@ if(Serial.available()){
 
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
+#include <SoftwareSerial.h>
+
 #ifdef __AVR__
   #include <avr/power.h>
 #endif
@@ -46,7 +48,16 @@ if(Serial.available()){
 //   NEO_RGB     Pixels are wired for RGB bitstream (v1 FLORA pixels, not v2)
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(60, PIN, NEO_GRB + NEO_KHZ800);
+Adafruit_NeoPixel pixels = Adafruit_NeoPixel(30, PIN, NEO_GRB + NEO_KHZ800);
 
+SoftwareSerial bluetooth(0, 1);
+char ponto = '.';
+char end = ')';
+String r = "";
+String g = "";
+String b = "";
+String colors = "";
+int state = 1;
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
 // pixel power leads, add 300 - 500 Ohm resistor on first pixel's data input
 // and minimize distance between Arduino and first pixel.  Avoid connecting
@@ -137,6 +148,26 @@ void theaterChaseRainbow(uint8_t wait) {
   }
 }
 
+void verificaBluetooth(){ // Verifica se existe algum dado a ser lido da serial
+  while(bluetooth.available()){ // verifica se existem bytes a serem lidos da porta serial virtual
+    char dados = bluetooth.read(); // Lê 1 byte da porta serial
+    
+    while(dados != '\n'){
+      colors += dados;
+      dados = bluetooth.read();
+    }
+    Serial.println(colors.substring('G'));
+    }
+    
+    for(int i=0;i<30;i++){
+
+    // pixels.Color takes RGB values, from 0,0,0 up to 255,255,255
+    pixels.setPixelColor(i, pixels.Color(r.toInt(),g.toInt(),b.toInt())); // Moderately bright green color.
+    pixels.show(); // This sends the updated pixel color to the hardware.
+    delay(10); // Delay for a period of time (in milliseconds).
+  }
+}
+
 
 
 char caracter;
@@ -149,22 +180,14 @@ void setup() {
   // End of trinket special code
 
   Serial.begin(9600);
+  bluetooth.begin(9600);
   strip.begin();
   strip.show(); // Initialize all pixels to 'off'
 }
 
 void loop() {
-  if(Serial.available()){
-    caracter = Serial.read();
-    Serial.print("Recebi os dados;");
-    Serial.println(caracter);
-  }      
+  verificaBluetooth();
           
   // Condições para quando for precionada a respectiva letra, executa LIGA/DESLIGA LED.         
-  if(caracter == 'a')
-  {
-    rainbow(20);
-  } else {
-    theaterChase(strip.Color(127, 127, 127), 50); // White
-  }
+  
 }
