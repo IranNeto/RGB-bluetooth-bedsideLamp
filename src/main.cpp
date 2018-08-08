@@ -1,34 +1,3 @@
-/*
-#include <Arduino.h>
-#include <Adafruit_NeoPixel.h>
-
-//Variavel que armazenará letras/números para o acionamento dos leds.
-char caracter;
-
-void setup(){
-    Serial.begin(9600);
-}
-
-void loop(){
-if(Serial.available()){
-    
-    caracter = Serial.read();
-    Serial.print("Recebi os dados;");
-    Serial.println(caracter);
-         
-          
-// Condições para quando for precionada a respectiva letra, executa LIGA/DESLIGA LED.         
-    if(caracter == 'a')
-    {
-        digitalWrite(13,HIGH);
-    } else {
-        digitalWrite(13,LOW);
-    }
-
-}
-}
-*/
-
 #include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 #include <SoftwareSerial.h>
@@ -126,8 +95,8 @@ void rainbowCycle(uint8_t wait) {
   }
 }
 
-void oneColor(){ // Verifica se existe algum dado a ser lido da serial
-  while(bluetooth.available()){ // verifica se existem bytes a serem lidos da porta serial virtual
+void oneColor(){
+  while(bluetooth.available()){ // Check if there are bytes available to be read
     colors = bluetooth.readString();
     Serial.println(colors);
     w = colors.substring(0,2);
@@ -135,6 +104,7 @@ void oneColor(){ // Verifica se existe algum dado a ser lido da serial
     g = colors.substring(4,6);
     b = colors.substring(6,8);
     
+    //When white = 0 then go to rainbow function
     if(w != "00"){
       w.toCharArray(buf,w.length() + 1);
       unsigned long white = strtoul(buf,NULL,16); 
@@ -173,7 +143,6 @@ void setup() {
   strip.show(); // Initialize all pixels to 'off'
 }
 
-void loop() {
-  // Condições para quando for precionada a respectiva letra, executa LIGA/DESLIGA LED.         
+void loop() {         
   oneColor();
 }
